@@ -25,7 +25,9 @@ export default async function handler(req, res) {
       const filePath = files.file[0].filepath;
       const workbook = xlsx.readFile(filePath);
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const data = xlsx.utils.sheet_to_json(sheet, { defval: "" });
+
+      // Leer a partir de la segunda fila (índice 1), usando la primera como encabezado real
+      const data = xlsx.utils.sheet_to_json(sheet, { range: 1, defval: "" });
 
       const fecha = new Date().toISOString().slice(0, 10).replace(/-/g, '');
       let resultado = "InstructingParty;SettlementParty;SecuritiesAccount;Instrument;InstrumentIdentifierType;CSDOfCounterparty;SettlementCounterparty;SecuritiesAccountOfCounterparty;InstructionReference;Instrument(MovementOfSecurities);Quantity;QuantityType;TransactionType;SettlementMethod;TradeDate;IntendedSettlementDate;PaymentType\n";
