@@ -1,15 +1,7 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "api/index.py",
-      "use": "vercel-python-wsgi"
+  "functions": {
+    "api/convertir.py": {
+      "runtime": "vercel-python@0.7.0"
     }
-  ],
-  "routes": [
-    {
-      "src": "/api/convertir",
-      "dest": "api/index.py"
-    }
-  ]
+  }
 }
