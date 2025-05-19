@@ -1,9 +1,7 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "api/convertir.py",
-      "use": "@vercel/python"
+  "functions": {
+    "api/convertir.py": {
+      "runtime": "python3.9"
     }
-  ]
+  }
 }

@@ -1,16 +1,23 @@
-from fastapi import FastAPI, UploadFile, File
-from fastapi.responses import FileResponse
 import pandas as pd
 from datetime import datetime
+import tempfile
+import os
 
-app = FastAPI()
+def handler(request, response):
+    # Parse the uploaded file from the request
+    form = request.files
+    if "file" not in form:
+        response.status_code = 400
+        response.body = "No file uploaded"
+        return
 
-@app.post("/convertir")
-async def convertir(file: UploadFile = File(...)):
+    file = form["file"]
     df = pd.read_excel(file.file)
     fecha_actual = datetime.now().strftime("%Y%m%d")
 
-    output_path = "/tmp/archivo_convertido.si1"
+    # Use a temp file for output
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".si1") as tmp:
+        output_path = tmp.name
 
     columnas = [
         "InstructingParty", "SettlementParty", "SecuritiesAccount", "Instrument",
@@ -42,4 +49,10 @@ async def convertir(file: UploadFile = File(...)):
     with open(output_path, "w", encoding="utf-8") as f:
         f.write("\n".join(filas))
 
-    return FileResponse(output_path, filename="archivo_convertido.si1")
+    # Return the file as a response
+    response.headers["Content-Type"] = "application/octet-stream"
+    response.headers["Content-Disposition"] = "attachment; filename=archivo_convertido.si1"
+    with open(output_path, "rb") as f:
+        response.body = f.read()
+
+    os.remove(output_path)
