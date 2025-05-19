@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conversor Excel a .si1</title>
+</head>
+<body style="font-family: sans-serif; text-align: center; padding: 40px;">
+  <h1>Conversor de Excel a .si1</h1>
+  <p>Subí tu archivo Excel (.xlsx) y descargá el archivo .si1 generado automáticamente.</p>
+
+  <form id="upload-form" enctype="multipart/form-data">
+    <input type="file" id="file" name="file" accept=".xlsx" required><br><br>
+    <button type="submit">Convertir y Descargar .si1</button>
+  </form>
+
+  <p id="status"></p>
+
+  <script>
+    document.getElementById('upload-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const formData = new FormData();
+      const fileInput = document.getElementById('file');
+      formData.append('file', fileInput.files[0]);
+
+      const status = document.getElementById('status');
+      status.textContent = 'Procesando...';
+
+      try {
+        const response = await fetch('/api/convertir', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) throw new Error('Error en la conversión');
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'archivo_convertido.si1';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        status.textContent = 'Conversión exitosa.';
+      } catch (error) {
+        console.error(error);
+        status.textContent = 'Error al convertir el archivo.';
+      }
+    });
+  </script>
+</body>
+</html>
