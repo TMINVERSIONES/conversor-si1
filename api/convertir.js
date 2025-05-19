@@ -25,29 +25,32 @@ export default async function handler(req, res) {
       const filePath = files.file[0].filepath;
       const workbook = xlsx.readFile(filePath);
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const data = xlsx.utils.sheet_to_json(sheet);
+      const data = xlsx.utils.sheet_to_json(sheet, { defval: "" });
 
       const fecha = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-      let resultado = '';
+      let resultado = "InstructingParty;SettlementParty;SecuritiesAccount;Instrument;InstrumentIdentifierType;CSDOfCounterparty;SettlementCounterparty;SecuritiesAccountOfCounterparty;InstructionReference;Instrument(MovementOfSecurities);Quantity;QuantityType;TransactionType;SettlementMethod;TradeDate;IntendedSettlementDate;PaymentType\n";
+
+      let contador = 0;
 
       for (const row of data) {
         try {
-          const instrumento = String(row[Object.keys(row)[0]]).match(/\((.*?)\)/)?.[1];
-          const cantidad = row['Disponible'];
-          const comitente = row['Comitente'];
+          const instrumento = String(row["Instrumento"] || "").match(/\((.*?)\)/)?.[1];
+          const cantidad = row["Disponible"];
+          const comitente = row["Comitente"];
 
-          resultado += `:20:${fecha}\n`;
-          resultado += `:23G:NEWM\n`;
-          resultado += `:98A::TRAD//${fecha}\n`;
-          resultado += `:98A::SETT//${fecha}\n`;
-          resultado += `:35B:ISIN AR${instrumento}\n`;
-          resultado += `:94B::TRAD//XXXX/ARBA\n`;
-          resultado += `:16S:TRADDET\n`;
-          resultado += `:36B::SETT//FAMT/${cantidad}\n`;
-          resultado += `:97A::SAFE//81/${comitente}\n`;
-          resultado += `:97A::PSET//9081/${comitente}\n`;
-          resultado += `:16S:SETDET\n`;
-          resultado += `:16S:SETTRAN\n`;
+          if (!instrumento || !cantidad || !comitente) continue;
+
+          const referencia = "EA575105710000" + String(contador).padStart(2, "0");
+
+          const linea = [
+            "81", "81", `81/${comitente}`,
+            instrumento, "LOCAL_CODE", "CVSA", "309", `9081/${comitente}`,
+            referencia, "RECEIVE", cantidad, "", "TRAD", "RTGS", fecha, fecha, "NOTHING"
+          ].join(";");
+
+          resultado += linea + "\n";
+          contador++;
+
         } catch {
           continue;
         }
