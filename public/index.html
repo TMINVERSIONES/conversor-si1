@@ -3,14 +3,55 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Conversor Excel a .si1</title>
+  <title>Conversor Excel a .si1 - TM Inversiones</title>
+  <style>
+    body {
+      font-family: 'Work Sans', sans-serif;
+      background-color: #ffffff;
+      color: #131313;
+      text-align: center;
+      padding: 40px;
+    }
+    h1 {
+      color: #4372b6;
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+    p {
+      color: #868686;
+      margin-bottom: 30px;
+    }
+    input[type="file"] {
+      padding: 10px;
+      border: 1px solid #ccc;
+      margin-bottom: 20px;
+    }
+    button {
+      background-color: #8d18ab;
+      color: #ffffff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background-color: #4372b6;
+    }
+    #status {
+      margin-top: 20px;
+      color: #131313;
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600&display=swap" rel="stylesheet">
 </head>
-<body style="font-family: sans-serif; text-align: center; padding: 40px;">
+<body>
+  <img src="/logo_tm_inversiones.svg" alt="TM Inversiones" style="height: 60px; margin-bottom: 30px;">
   <h1>Conversor de Excel a .si1</h1>
-  <p>Subí tu archivo Excel (.xlsx) y descargá el archivo .si1 generado automáticamente.</p>
+  <p>Subí tu archivo Excel (.xlsx o .xls) y descargá el archivo .si1 generado automáticamente.</p>
 
   <form id="upload-form" enctype="multipart/form-data">
-    <input type="file" id="file" name="file" accept=".xlsx" required><br><br>
+    <input type="file" id="file" name="file" accept=".xlsx,.xls" required><br><br>
     <button type="submit">Convertir y Descargar .si1</button>
   </form>
 
