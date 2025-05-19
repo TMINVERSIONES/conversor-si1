@@ -5,5 +5,15 @@
       "src": "api/convertir.py",
       "use": "@vercel/python"
     }
+  ],
+  "routes": [
+    {
+      "src": "/api/.*",
+      "dest": "/api/convertir.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/public/$1"
+    }
   ]
 }
