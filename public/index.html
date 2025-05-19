@@ -27,7 +27,7 @@
       margin-bottom: 20px;
     }
     button {
-      background-color: #8d18ab;
+      background-color: #4372b6;
       color: #ffffff;
       padding: 10px 20px;
       border: none;
@@ -36,17 +36,24 @@
       font-weight: bold;
     }
     button:hover {
-      background-color: #4372b6;
+      background-color: #6a9de1;
     }
     #status {
       margin-top: 20px;
       color: #131313;
     }
+    .logo {
+      height: 120px;
+      margin-bottom: 30px;
+    }
+    .logo-footer {
+      margin-top: 40px;
+    }
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-  <img src="/logo_tm_inversiones.svg" alt="TM Inversiones" style="height: 60px; margin-bottom: 30px;">
+  <img src="/logo_tm_inversiones.png" alt="TM Inversiones" class="logo">
   <h1>Conversor de Excel a .si1</h1>
   <p>Subí tu archivo Excel (.xlsx o .xls) y descargá el archivo .si1 generado automáticamente.</p>
 
@@ -56,6 +63,10 @@
   </form>
 
   <p id="status"></p>
+
+  <div class="logo-footer">
+    <img src="/logo_tm_inversiones.png" alt="TM Inversiones" class="logo">
+  </div>
 
   <script>
     document.getElementById('upload-form').addEventListener('submit', async function(e) {
@@ -92,5 +103,4 @@
     });
   </script>
 </body>
-<img src="/logo_tm_inversiones.png" alt="TM Inversiones" style="height: 60px; margin-bottom: 30px;">
 </html>
