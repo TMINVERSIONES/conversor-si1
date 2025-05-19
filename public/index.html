@@ -1,106 +1,103 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Conversor Excel a .si1 - TM Inversiones</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Conversor de Excel a .si1</title>
   <style>
     body {
-      font-family: 'Work Sans', sans-serif;
-      background-color: #ffffff;
-      color: #131313;
+      font-family: Arial, sans-serif;
       text-align: center;
-      padding: 40px;
+      margin-top: 60px;
+      color: #333;
     }
     h1 {
-      color: #4372b6;
-      font-size: 2.5rem;
-      margin-bottom: 10px;
-    }
-    p {
-      color: #868686;
-      margin-bottom: 30px;
+      color: #3b6cb7;
     }
     input[type="file"] {
-      padding: 10px;
-      border: 1px solid #ccc;
-      margin-bottom: 20px;
+      margin: 20px auto;
     }
     button {
-      background-color: #4372b6;
-      color: #ffffff;
+      background-color: #3b6cb7;
+      color: white;
       padding: 10px 20px;
       border: none;
-      border-radius: 4px;
-      cursor: pointer;
       font-weight: bold;
+      cursor: pointer;
+      border-radius: 5px;
     }
     button:hover {
-      background-color: #6a9de1;
+      background-color: #295097;
     }
-    #status {
+    #mensaje-exito {
       margin-top: 20px;
-      color: #131313;
+      font-size: 18px;
+      font-weight: bold;
+      color: green;
     }
-    .logo {
-      height: 120px;
-      margin-bottom: 30px;
-    }
-    .logo-footer {
-      margin-top: 40px;
+    #imagen-exito {
+      margin-top: 20px;
+      max-width: 300px;
+      display: none;
     }
   </style>
-  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-  <img src="/logo_tm_inversiones.png" alt="TM Inversiones" class="logo">
+  <img src="logo.png" alt="TM Inversiones" style="max-height: 100px; margin-bottom: 20px;" />
   <h1>Conversor de Excel a .si1</h1>
   <p>Subí tu archivo Excel (.xlsx o .xls) y descargá el archivo .si1 generado automáticamente.</p>
 
-  <form id="upload-form" enctype="multipart/form-data">
-    <input type="file" id="file" name="file" accept=".xlsx,.xls" required><br><br>
+  <form id="uploadForm">
+    <input type="file" name="file" required />
+    <br />
     <button type="submit">Convertir y Descargar .si1</button>
   </form>
 
-  <p id="status"></p>
-
-  <div class="logo-footer">
-    <img src="/logo_tm_inversiones.png" alt="TM Inversiones" class="logo">
-  </div>
+  <p id="mensaje-exito" style="display: none;">¡Archivo convertido correctamente!</p>
+  <img id="imagen-exito" src="ok.jpeg" alt="Conversión exitosa" />
 
   <script>
-    document.getElementById('upload-form').addEventListener('submit', async function(e) {
+    const form = document.getElementById("uploadForm");
+    const mensajeExito = document.getElementById("mensaje-exito");
+    const imagenExito = document.getElementById("imagen-exito");
+
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
+      mensajeExito.style.display = "none";
+      imagenExito.style.display = "none";
 
-      const formData = new FormData();
-      const fileInput = document.getElementById('file');
-      formData.append('file', fileInput.files[0]);
-
-      const status = document.getElementById('status');
-      status.textContent = 'Procesando...';
+      const formData = new FormData(form);
 
       try {
-        const response = await fetch('/api/convertir', {
-          method: 'POST',
-          body: formData
+        const response = await fetch("/api/convertir", {
+          method: "POST",
+          body: formData,
         });
 
-        if (!response.ok) throw new Error('Error en la conversión');
+        if (!response.ok) {
+          throw new Error("Error al convertir el archivo");
+        }
 
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
+
+        const a = document.createElement("a");
         a.href = url;
-        a.download = 'archivo_convertido.si1';
+        a.download = "archivo_convertido.si1";
         document.body.appendChild(a);
         a.click();
         a.remove();
-        status.textContent = 'Conversión exitosa.';
+
+        mensajeExito.style.display = "block";
+        imagenExito.style.display = "block";
+
       } catch (error) {
-        console.error(error);
-        status.textContent = 'Error al convertir el archivo.';
+        alert(error.message);
       }
     });
   </script>
+
+  <img src="logo.png" alt="TM Inversiones" style="max-height: 80px; margin-top: 40px;" />
 </body>
 </html>
