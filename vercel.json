@@ -1,7 +1,9 @@
 {
   "version": 2,
   "builds": [
-    { "src": "api/convertir.py", "use": "@vercel/python" }
+    {
+      "src": "api/convertir.py",
+      "use": "@vercel/python"
+    }
   ]
 }
-
