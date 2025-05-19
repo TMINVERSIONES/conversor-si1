@@ -37,9 +37,11 @@
       color: green;
     }
     #imagen-exito {
-      margin-top: 20px;
+      margin-top: 10px;
       max-width: 300px;
       display: none;
+      margin-left: auto;
+      margin-right: auto;
     }
   </style>
 </head>
@@ -54,8 +56,10 @@
     <button type="submit">Convertir y Descargar .si1</button>
   </form>
 
-  <p id="mensaje-exito" style="display: none;">¡Archivo convertido correctamente!</p>
-  <img id="imagen-exito" src="ok.jpeg" alt="Conversión exitosa" />
+  <div id="mensaje-exito" style="display: none;">
+    ¡Archivo convertido correctamente!<br/>
+    <img id="imagen-exito" src="ok.jpeg" alt="Conversión exitosa" />
+  </div>
 
   <script>
     const form = document.getElementById("uploadForm");
