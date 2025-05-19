@@ -1,6 +1,5 @@
 
 import pandas as pd
-import io
 import datetime
 import base64
 
@@ -13,33 +12,30 @@ def handler(request):
                 "body": "Método no permitido"
             }
 
-        form_data = request.files
-        file = form_data.get("file")
+        file = request.files.get("file")
         if not file:
             return {
                 "statusCode": 400,
                 "headers": { "Content-Type": "text/plain" },
-                "body": "Archivo no proporcionado"
+                "body": "No se proporcionó archivo"
             }
 
-        # Leer Excel (.xls o .xlsx)
         df = pd.read_excel(file.file, dtype=str)
 
-        # Obtener fecha actual en formato YYYYMMDD
-        fecha_actual = datetime.datetime.now().strftime("%Y%m%d")
+        hoy = datetime.datetime.now().strftime("%Y%m%d")
+        resultado = ""
 
-        contenido = ""
         for _, row in df.iterrows():
             try:
                 instrumento = row[0].split("(")[-1].strip(")")
                 cantidad = row["Disponible"]
                 comitente = str(row["Comitente"])
 
-                contenido += (
-                    f":20:{fecha_actual}\n"
+                resultado += (
+                    f":20:{hoy}\n"
                     f":23G:NEWM\n"
-                    f":98A::TRAD//{fecha_actual}\n"
-                    f":98A::SETT//{fecha_actual}\n"
+                    f":98A::TRAD//{hoy}\n"
+                    f":98A::SETT//{hoy}\n"
                     f":35B:ISIN AR{instrumento}\n"
                     f":94B::TRAD//XXXX/ARBA\n"
                     f":16S:TRADDET\n"
@@ -49,20 +45,16 @@ def handler(request):
                     f":16S:SETDET\n"
                     f":16S:SETTRAN\n"
                 )
-            except Exception:
+            except:
                 continue
 
-        # Convertir a bytes
-        output_bytes = contenido.encode("utf-8")
-
-        # Devolver como archivo para descargar
         return {
             "statusCode": 200,
             "headers": {
                 "Content-Type": "application/octet-stream",
                 "Content-Disposition": "attachment; filename=archivo_convertido.si1"
             },
-            "body": base64.b64encode(output_bytes).decode("utf-8"),
+            "body": base64.b64encode(resultado.encode()).decode(),
             "isBase64Encoded": True
         }
 
