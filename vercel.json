@@ -6,5 +6,4 @@
       "use": "@vercel/python@3.1.7"
     }
   ]
-  // agregado para forzar redeploy
 }
