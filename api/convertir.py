@@ -1,58 +1,74 @@
+
 import pandas as pd
-from datetime import datetime
-import tempfile
-import os
+import io
+import datetime
+import base64
 
-def handler(request, response):
-    # Parse the uploaded file from the request
-    form = request.files
-    if "file" not in form:
-        response.status_code = 400
-        response.body = "No file uploaded"
-        return
+def handler(request):
+    try:
+        if request.method != "POST":
+            return {
+                "statusCode": 405,
+                "headers": { "Content-Type": "text/plain" },
+                "body": "Método no permitido"
+            }
 
-    file = form["file"]
-    df = pd.read_excel(file.file)
-    fecha_actual = datetime.now().strftime("%Y%m%d")
+        form_data = request.files
+        file = form_data.get("file")
+        if not file:
+            return {
+                "statusCode": 400,
+                "headers": { "Content-Type": "text/plain" },
+                "body": "Archivo no proporcionado"
+            }
 
-    # Use a temp file for output
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".si1") as tmp:
-        output_path = tmp.name
+        # Leer Excel (.xls o .xlsx)
+        df = pd.read_excel(file.file, dtype=str)
 
-    columnas = [
-        "InstructingParty", "SettlementParty", "SecuritiesAccount", "Instrument",
-        "InstrumentIdentifierType", "CSDOfCounterparty", "SettlementCounterparty",
-        "SecuritiesAccountOfCounterparty", "InstructionReference",
-        "Instrument(MovementOfSecurities)", "Quantity", "QuantityType",
-        "TransactionType", "SettlementMethod", "TradeDate",
-        "IntendedSettlementDate", "PaymentType"
-    ]
+        # Obtener fecha actual en formato YYYYMMDD
+        fecha_actual = datetime.datetime.now().strftime("%Y%m%d")
 
-    filas = [";".join(columnas)]
+        contenido = ""
+        for _, row in df.iterrows():
+            try:
+                instrumento = row[0].split("(")[-1].strip(")")
+                cantidad = row["Disponible"]
+                comitente = str(row["Comitente"])
 
-    for i, row in df.iterrows():
-        try:
-            comitente = str(int(row[0])).strip()
-            instrumento = row[1].split(')')[0].replace('(', '')
-            disponible = float(row[2])
-            instruction_reference = f"EA{datetime.now().strftime('%H%M%S')}{i:05d}"
+                contenido += (
+                    f":20:{fecha_actual}\n"
+                    f":23G:NEWM\n"
+                    f":98A::TRAD//{fecha_actual}\n"
+                    f":98A::SETT//{fecha_actual}\n"
+                    f":35B:ISIN AR{instrumento}\n"
+                    f":94B::TRAD//XXXX/ARBA\n"
+                    f":16S:TRADDET\n"
+                    f":36B::SETT//FAMT/{cantidad}\n"
+                    f":97A::SAFE//81/{comitente}\n"
+                    f":97A::PSET//9081/{comitente}\n"
+                    f":16S:SETDET\n"
+                    f":16S:SETTRAN\n"
+                )
+            except Exception:
+                continue
 
-            valores = [
-                "81", "81", f"81/{comitente}", instrumento, "LOCAL_CODE", "CVSA", "309", f"9081/{comitente}",
-                instruction_reference, "RECEIVE", str(disponible), "", "TRAD", "RTGS", fecha_actual, fecha_actual, "NOTHING"
-            ]
+        # Convertir a bytes
+        output_bytes = contenido.encode("utf-8")
 
-            filas.append(";".join(valores))
-        except:
-            continue
+        # Devolver como archivo para descargar
+        return {
+            "statusCode": 200,
+            "headers": {
+                "Content-Type": "application/octet-stream",
+                "Content-Disposition": "attachment; filename=archivo_convertido.si1"
+            },
+            "body": base64.b64encode(output_bytes).decode("utf-8"),
+            "isBase64Encoded": True
+        }
 
-    with open(output_path, "w", encoding="utf-8") as f:
-        f.write("\n".join(filas))
-
-    # Return the file as a response
-    response.headers["Content-Type"] = "application/octet-stream"
-    response.headers["Content-Disposition"] = "attachment; filename=archivo_convertido.si1"
-    with open(output_path, "rb") as f:
-        response.body = f.read()
-
-    os.remove(output_path)
+    except Exception as e:
+        return {
+            "statusCode": 500,
+            "headers": { "Content-Type": "text/plain" },
+            "body": f"Error interno: {str(e)}"
+        }
